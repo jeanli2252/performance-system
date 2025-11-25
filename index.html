@@ -165,7 +165,7 @@
     <div class="login-container">
         <!-- 標題區域 -->
         <div class="login-header">
-            <h1>🎯 TT績效管理系統</h1>
+            <h1>🎯 績效管理系統</h1>
             <p>請輸入您的帳號密碼登入</p>
         </div>
 
@@ -218,11 +218,61 @@
     </div>
 
     <script>
-        // ===== JavaScript 部分（先不用管，下一步會教） =====
-        // 這裡先放著，之後會用到
+        // ===== JavaScript 登入功能 =====
+        
+        // 1. 找到登入表單
         document.getElementById('loginForm').addEventListener('submit', function(e) {
+            // 2. 阻止表單預設提交行為（不要讓頁面重新整理）
             e.preventDefault();
-            alert('登入功能還沒完成，請等待後端 API 建立！');
+            
+            // 3. 取得使用者輸入的值
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            // 4. 定義假的使用者資料（之後會從後端 API 取得）
+            const users = {
+                'wang': { password: '123456', role: 'employee', name: '王小明' },
+                'zhang': { password: '123456', role: 'manager', name: '張經理' },
+                'chen': { password: '123456', role: 'hr', name: '陳HR' }
+            };
+            
+            // 5. 檢查帳號是否存在
+            if (!users[username]) {
+                alert('❌ 帳號不存在！');
+                return;
+            }
+            
+            // 6. 檢查密碼是否正確
+            if (users[username].password !== password) {
+                alert('❌ 密碼錯誤！');
+                return;
+            }
+            
+            // 7. 檢查身份是否符合
+            if (users[username].role !== role) {
+                alert('❌ 身份選擇錯誤！');
+                return;
+            }
+            
+            // 8. 登入成功！儲存使用者資訊到瀏覽器
+            localStorage.setItem('currentUser', JSON.stringify({
+                username: username,
+                name: users[username].name,
+                role: role
+            }));
+            
+            // 9. 根據身份跳轉到不同頁面
+            if (role === 'employee') {
+                alert('✅ 登入成功！即將前往員工頁面');
+                // window.location.href = 'employee.html';  // 之後會用這個
+            } else if (role === 'manager') {
+                alert('✅ 登入成功！即將前往主管頁面');
+                // window.location.href = 'manager.html';
+            } else if (role === 'hr') {
+                alert('✅ 登入成功！即將前往 HR 頁面');
+                // window.location.href = 'hr.html';
+            }
         });
     </script>
 </body>
