@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR 頁面 - 績效管理系統</title>
+    <style>
+        /* ===== 1. 基本設定 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ===== 2. 頂部導航列 ===== */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .navbar-left p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .navbar-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .export-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+        }
+
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background: #ee5a52;
+        }
+
+        /* ===== 3. 主要內容容器 ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ===== 4. 卡片樣式 ===== */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        /* ===== 5. 統計卡片 ===== */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 5px solid #667eea;
+        }
+
+        .stat-card.success {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.warning {
+            border-left-color: #ffc107;
+        }
+
+        .stat-card.info {
+            border-left-color: #17a2b8;
+        }
+
+        .stat-card h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .percentage {
+            font-size: 14px;
+            color: #28a745;
+        }
+
+        /* ===== 6. 部門卡片 ===== */
+        .departments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .dept-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .dept-card h4 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .dept-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .dept-stat-item {
+            text-align: center;
+        }
+
+        .dept-stat-item .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .dept-stat-item .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.3);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            background: white;
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .dept-card .completion-text {
+            font-size: 14px;
+            text-align: right;
+            opacity: 0.9;
+        }
+
+        /* ===== 7. 篩選器 ===== */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* ===== 8. 績效表格 ===== */
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .performance-table th {
+            background: #f5f5f5;
+            padding: 15px 12px;
+            text-align: left;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            font-weight: bold;
+        }
+
+        .performance-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .performance-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .score-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 16px;
+        }
+
+        /* ===== 9. 響應式設計 ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .navbar-right {
+                width: 100%;
+            }
+
+            .navbar-right .btn {
+                flex: 1;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .departments-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .performance-table {
+                font-size: 12px;
+            }
+
+            .performance-table th,
+            .performance-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 頂部導航列 -->
+    <div class="navbar">
+        <div class="navbar-left">
+            <h2>📊 HR 管理後台</h2>
+            <p id="welcomeMessage">歡迎回來，載入中...</p>
+        </div>
+        <div class="navbar-right">
+            <button class="btn export-btn" onclick="exportToSheet()">📥 匯出到 Google Sheets</button>
+            <button class="btn logout-btn" onclick="logout()">登出</button>
+        </div>
+    </div>
+
+    <!-- 主要內容 -->
+    <div class="container">
+        <!-- 全公司統計 -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <h4>總員工數</h4>
+                <div class="number" id="totalEmployees">0</div>
+            </div>
+            <div class="stat-card warning">
+                <h4>已提交自評</h4>
+                <div class="number" id="submittedCount">0</div>
+            </div>
+            <div class="stat-card success">
+                <h4>已完成評分</h4>
+                <div class="number" id="completedCount">0</div>
+            </div>
+            <div class="stat-card info">
+                <h4>完成率</h4>
+                <div class="number" id="completionRate">0%</div>
+            </div>
+        </div>
+
+        <!-- 部門績效總覽 -->
+        <div class="card">
+            <h3>🏢 部門績效總覽</h3>
+            <div class="departments-grid" id="departmentsGrid">
+                <!-- 這裡會用 JavaScript 動態填入資料 -->
+            </div>
+        </div>
+
+        <!-- 績效記錄列表 -->
+        <div class="card">
+            <h3>📋 所有績效記錄</h3>
+            
+            <!-- 篩選器 -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="deptFilter">部門篩選</label>
+                    <select id="deptFilter" onchange="filterPerformances()">
+                        <option value="all">全部部門</option>
+                        <option value="業務部">業務部</option>
+                        <option value="行銷部">行銷部</option>
+                        <option value="技術部">技術部</option>
+                        <option value="客服部">客服部</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="statusFilter">狀態篩選</label>
+                    <select id="statusFilter" onchange="filterPerformances()">
+                        <option value="all">全部狀態</option>
+                        <option value="pending">待評分</option>
+                        <option value="completed">已完成</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 績效表格 -->
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>員工</th>
+                        <th>部門</th>
+                        <th>季度</th>
+                        <th>自評分數</th>
+                        <th>主管評分</th>
+                        <th>狀態</th>
+                        <th>提交時間</th>
+                    </tr>
+                </thead>
+                <tbody id="performanceTableBody">
+                    <!-- 這裡會用 JavaScript 動態填入資料 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ===== JavaScript 部分 =====
+
+        // 所有員工資料（包含部門資訊）
+        const allEmployees = {
+            'wang': { name: '王小明', dept: '業務部' },
+            'lin': { name: '林美玲', dept: '業務部' },
+            'chen_dm': { name: '陳大明', dept: '業務部' },
+            'huang': { name: '黃小芳', dept: '行銷部' },
+            'wu': { name: '吳志明', dept: '行銷部' },
+            'zhang': { name: '張經理', dept: '業務部' },
+            'liu': { name: '劉經理', dept: '行銷部' }
+        };
+
+        // 儲存所有績效資料（用於篩選）
+        let allPerformances = [];
+
+        // 1. 頁面載入時執行
+        window.onload = function() {
+            checkLogin();
+            loadAllData();
+        };
+
+        // 2. 檢查是否已登入
+        function checkLogin() {
+            const currentUser = localStorage.getItem('currentUser');
+            
+            if (!currentUser) {
+                alert('請先登入！');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = JSON.parse(currentUser);
+            
+            // 檢查是否是 HR
+            if (user.role !== 'hr') {
+                alert('此頁面僅供 HR 使用！');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 顯示歡迎訊息
+            document.getElementById('welcomeMessage').textContent = 
+                `歡迎回來，${user.name}`;
+        }
+
+        // 3. 載入所有資料
+        function loadAllData() {
+            const performances = JSON.parse(localStorage.getItem('performances') || '[]');
+            allPerformances = performances;
+
+            // 計算統計數據
+            const totalEmployees = Object.keys(allEmployees).filter(u => !u.includes('經理')).length;
+            const submittedCount = performances.length;
+            const completedCount = performances.filter(p => p.managerScore).length;
+            const completionRate = totalEmployees > 0 
+                ? Math.round((completedCount / totalEmployees) * 100) 
+                : 0;
+
+            // 更新統計卡片
+            document.getElementById('totalEmployees').textContent = totalEmployees;
+            document.getElementById('submittedCount').textContent = submittedCount;
+            document.getElementById('completedCount').textContent = completedCount;
+            document.getElementById('completionRate').textContent = completionRate + '%';
+
+            // 顯示部門總覽
+            displayDepartmentOverview(performances);
+
+            // 顯示績效列表
+            filterPerformances();
+        }
+
+        // 4. 顯示部門總覽
+        function displayDepartmentOverview(performances) {
+            const departments = ['業務部', '行銷部', '技術部', '客服部'];
+            const container = document.getElementById('departmentsGrid');
+
+            container.innerHTML = departments.map(dept => {
+                // 計算該部門的員工數量
+                const deptEmployees = Object.values(allEmployees).filter(e => e.dept === dept && !e.name.includes('經理'));
+                const totalEmployees = deptEmployees.length;
+
+                // 計算該部門的績效數據
+                const deptPerformances = performances.filter(p => allEmployees[p.username]?.dept === dept);
+                const submitted = deptPerformances.length;
+                const completed = deptPerformances.filter(p => p.managerScore).length;
+                const completionRate = totalEmployees > 0 
+                    ? Math.round((completed / totalEmployees) * 100) 
+                    : 0;
+
+                // 計算平均分數
+                const completedPerfs = deptPerformances.filter(p => p.managerScore);
+                const avgScore = completedPerfs.length > 0
+                    ? (completedPerfs.reduce((sum, p) => sum + parseFloat(p.managerScore), 0) / completedPerfs.length).toFixed(1)
+                    : 'N/A';
+
+                return `
+                    <div class="dept-card">
+                        <h4>${dept}</h4>
+                        <div class="dept-stats">
+                            <div class="dept-stat-item">
+                                <div class="label">員工數</div>
+                                <div class="value">${totalEmployees}</div>
+                            </div>
+                            <div class="dept-stat-item">
+                                <div class="label">已提交</div>
+                                <div class="value">${submitted}</div>
+                            </div>
+                            <div class="dept-stat-item">
+                                <div class="label">已完成</div>
+                                <div class="value">${completed}</div>
+                            </div>
+                            <div class="dept-stat-item">
+                                <div class="label">平均分</div>
+                                <div class="value">${avgScore}</div>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${completionRate}%"></div>
+                        </div>
+                        <div class="completion-text">完成率：${completionRate}%</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 5. 篩選績效記錄
+        function filterPerformances() {
+            const deptFilter = document.getElementById('deptFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filtered = [...allPerformances];
+
+            // 按部門篩選
+            if (deptFilter !== 'all') {
+                filtered = filtered.filter(p => allEmployees[p.username]?.dept === deptFilter);
+            }
+
+            // 按狀態篩選
+            if (statusFilter === 'pending') {
+                filtered = filtered.filter(p => !p.managerScore);
+            } else if (statusFilter === 'completed') {
+                filtered = filtered.filter(p => p.managerScore);
+            }
+
+            // 顯示表格
+            displayPerformanceTable(filtered);
+        }
+
+        // 6. 顯示績效表格
+        function displayPerformanceTable(performances) {
+            const tbody = document.getElementById('performanceTableBody');
+
+            if (performances.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-message">沒有符合條件的績效記錄</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = performances.map(p => {
+                const employee = allEmployees[p.username];
+                const status = p.managerScore ? 'completed' : 'pending';
+                const statusText = p.managerScore ? '已完成' : '待評分';
+                const managerScore = p.managerScore || '-';
+
+                return `
+                    <tr>
+                        <td>${employee.name}</td>
+                        <td>${employee.dept}</td>
+                        <td>${p.quarter}</td>
+                        <td><span class="score-badge">${p.selfScore} 分</span></td>
+                        <td><span class="score-badge">${managerScore}${managerScore !== '-' ? ' 分' : ''}</span></td>
+                        <td><span class="status-badge status-${status}">${statusText}</span></td>
+                        <td>${p.submitDate}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 7. 匯出到 Google Sheets（預留功能）
+        function exportToSheet() {
+            alert('📥 匯出功能將在後端 API 完成後啟用！\n\n屆時可以將所有績效資料匯出到 Google Sheets 進行進一步分析。');
+        }
+
+        // 8. 登出功能
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
