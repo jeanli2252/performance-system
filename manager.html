@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主管頁面 - 績效管理系統</title>
+    <style>
+        /* ===== 1. 基本設定 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ===== 2. 頂部導航列 ===== */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .navbar-left p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ee5a52;
+        }
+
+        /* ===== 3. 主要內容容器 ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ===== 4. 卡片樣式 ===== */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        /* ===== 5. 統計卡片 ===== */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* ===== 6. 績效列表樣式 ===== */
+        .performance-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .performance-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .performance-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .performance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .employee-info h4 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .employee-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* ===== 7. 績效內容區域 ===== */
+        .performance-content {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .content-row {
+            margin-bottom: 12px;
+        }
+
+        .content-row strong {
+            color: #333;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        .content-row span {
+            color: #666;
+        }
+
+        .self-score {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        /* ===== 8. 評分表單 ===== */
+        .rating-form {
+            border-top: 2px dashed #e0e0e0;
+            padding-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .rating-container input[type="range"] {
+            flex: 1;
+        }
+
+        .rating-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* ===== 9. 按鈕樣式 ===== */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* ===== 10. 空狀態訊息 ===== */
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 16px;
+        }
+
+        /* ===== 11. 響應式設計 ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .performance-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 頂部導航列 -->
+    <div class="navbar">
+        <div class="navbar-left">
+            <h2>👔 主管管理頁面</h2>
+            <p id="welcomeMessage">歡迎回來，載入中...</p>
+        </div>
+        <button class="logout-btn" onclick="logout()">登出</button>
+    </div>
+
+    <!-- 主要內容 -->
+    <div class="container">
+        <!-- 統計卡片 -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <h4>團隊成員</h4>
+                <div class="number" id="totalMembers">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>待評分</h4>
+                <div class="number" id="pendingCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>已完成</h4>
+                <div class="number" id="completedCount">0</div>
+            </div>
+        </div>
+
+        <!-- 待評分的績效 -->
+        <div class="card">
+            <h3>⏳ 待評分的績效</h3>
+            <div id="pendingPerformances" class="performance-list">
+                <!-- 這裡會用 JavaScript 動態填入資料 -->
+            </div>
+        </div>
+
+        <!-- 已完成的績效 -->
+        <div class="card">
+            <h3>✅ 已完成的評分</h3>
+            <div id="completedPerformances" class="performance-list">
+                <!-- 這裡會用 JavaScript 動態填入資料 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== JavaScript 部分 =====
+
+        // 定義部門和員工的對應關係
+        const departments = {
+            'zhang': {
+                department: '業務部',
+                members: ['wang', 'lin', 'chen_dm']
+            },
+            'liu': {
+                department: '行銷部',
+                members: ['huang', 'wu']
+            }
+        };
+
+        // 員工姓名對照表
+        const employeeNames = {
+            'wang': '王小明',
+            'lin': '林美玲',
+            'chen_dm': '陳大明',
+            'huang': '黃小芳',
+            'wu': '吳志明'
+        };
+
+        // 1. 頁面載入時執行
+        window.onload = function() {
+            checkLogin();
+            loadPerformances();
+        };
+
+        // 2. 檢查是否已登入
+        function checkLogin() {
+            const currentUser = localStorage.getItem('currentUser');
+            
+            if (!currentUser) {
+                alert('請先登入！');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = JSON.parse(currentUser);
+            
+            // 檢查是否是主管
+            if (user.role !== 'manager') {
+                alert('此頁面僅供主管使用！');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 顯示歡迎訊息
+            const deptInfo = departments[user.username];
+            document.getElementById('welcomeMessage').textContent = 
+                `歡迎回來，${user.name}（${deptInfo.department}）`;
+        }
+
+        // 3. 載入績效資料
+        function loadPerformances() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const performances = JSON.parse(localStorage.getItem('performances') || '[]');
+            
+            // 取得我的團隊成員帳號
+            const myTeam = departments[currentUser.username].members;
+            
+            // 篩選出團隊成員的績效
+            const teamPerformances = performances.filter(p => myTeam.includes(p.username));
+            
+            // 分類：待評分 vs 已完成
+            const pending = teamPerformances.filter(p => !p.managerScore);
+            const completed = teamPerformances.filter(p => p.managerScore);
+
+            // 更新統計數字
+            document.getElementById('totalMembers').textContent = myTeam.length;
+            document.getElementById('pendingCount').textContent = pending.length;
+            document.getElementById('completedCount').textContent = completed.length;
+
+            // 顯示待評分的績效
+            displayPendingPerformances(pending);
+            
+            // 顯示已完成的績效
+            displayCompletedPerformances(completed);
+        }
+
+        // 4. 顯示待評分的績效
+        function displayPendingPerformances(performances) {
+            const container = document.getElementById('pendingPerformances');
+
+            if (performances.length === 0) {
+                container.innerHTML = '<div class="empty-message">🎉 太棒了！目前沒有待評分的績效</div>';
+                return;
+            }
+
+            container.innerHTML = performances.map((p, index) => `
+                <div class="performance-item">
+                    <div class="performance-header">
+                        <div class="employee-info">
+                            <h4>${employeeNames[p.username]}</h4>
+                            <p>${p.quarter} | 提交時間：${p.submitDate}</p>
+                        </div>
+                        <span class="status-badge status-pending">待評分</span>
+                    </div>
+
+                    <div class="performance-content">
+                        <div class="content-row">
+                            <strong>工作成果：</strong>
+                            <span>${p.achievement}</span>
+                        </div>
+                        <div class="content-row">
+                            <strong>自我評分：</strong>
+                            <span class="self-score">${p.selfScore} 分</span>
+                        </div>
+                        <div class="content-row">
+                            <strong>需要改進：</strong>
+                            <span>${p.improvement || '無'}</span>
+                        </div>
+                    </div>
+
+                    <div class="rating-form">
+                        <div class="form-group">
+                            <label>主管評分</label>
+                            <div class="rating-container">
+                                <input 
+                                    type="range" 
+                                    id="managerScore_${index}" 
+                                    min="1" 
+                                    max="5" 
+                                    value="3"
+                                    oninput="updateManagerRating(${index})"
+                                >
+                                <span class="rating-value" id="managerRating_${index}">3</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>主管評語</label>
+                            <textarea 
+                                id="managerComment_${index}" 
+                                placeholder="請填寫對員工的評語和建議..."
+                            ></textarea>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="submitRating(${index}, '${p.username}', '${p.quarter}')">
+                            提交評分
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 5. 顯示已完成的績效
+        function displayCompletedPerformances(performances) {
+            const container = document.getElementById('completedPerformances');
+
+            if (performances.length === 0) {
+                container.innerHTML = '<div class="empty-message">尚無已完成的評分記錄</div>';
+                return;
+            }
+
+            container.innerHTML = performances.map(p => `
+                <div class="performance-item">
+                    <div class="performance-header">
+                        <div class="employee-info">
+                            <h4>${employeeNames[p.username]}</h4>
+                            <p>${p.quarter} | 評分時間：${p.ratingDate || p.submitDate}</p>
+                        </div>
+                        <span class="status-badge status-completed">已完成</span>
+                    </div>
+
+                    <div class="performance-content">
+                        <div class="content-row">
+                            <strong>工作成果：</strong>
+                            <span>${p.achievement}</span>
+                        </div>
+                        <div class="content-row">
+                            <strong>自我評分：</strong>
+                            <span class="self-score">${p.selfScore} 分</span>
+                        </div>
+                        <div class="content-row">
+                            <strong>主管評分：</strong>
+                            <span class="self-score">${p.managerScore} 分</span>
+                        </div>
+                        <div class="content-row">
+                            <strong>主管評語：</strong>
+                            <span>${p.managerComment}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 6. 更新主管評分顯示
+        function updateManagerRating(index) {
+            const score = document.getElementById(`managerScore_${index}`).value;
+            document.getElementById(`managerRating_${index}`).textContent = score;
+        }
+
+        // 7. 提交評分
+        function submitRating(index, username, quarter) {
+            const managerScore = document.getElementById(`managerScore_${index}`).value;
+            const managerComment = document.getElementById(`managerComment_${index}`).value;
+
+            if (!managerComment.trim()) {
+                alert('請填寫主管評語！');
+                return;
+            }
+
+            // 更新績效資料
+            let performances = JSON.parse(localStorage.getItem('performances') || '[]');
+            
+            // 找到對應的績效記錄
+            const performanceIndex = performances.findIndex(
+                p => p.username === username && p.quarter === quarter && !p.managerScore
+            );
+
+            if (performanceIndex !== -1) {
+                performances[performanceIndex].managerScore = managerScore;
+                performances[performanceIndex].managerComment = managerComment;
+                performances[performanceIndex].ratingDate = new Date().toLocaleDateString('zh-TW');
+                performances[performanceIndex].status = 'completed';
+                
+                localStorage.setItem('performances', JSON.stringify(performances));
+
+                alert('✅ 評分提交成功！');
+                
+                // 重新載入資料
+                loadPerformances();
+            }
+        }
+
+        // 8. 登出功能
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
