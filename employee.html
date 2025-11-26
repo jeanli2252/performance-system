@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>員工頁面 - 績效管理系統</title>
+    <style>
+        /* ===== 1. 基本設定 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ===== 2. 頂部導航列 ===== */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .navbar-left p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ee5a52;
+        }
+
+        /* ===== 3. 主要內容容器 ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ===== 4. 卡片樣式 ===== */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        /* ===== 5. 表單樣式 ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* ===== 6. 評分滑桿樣式 ===== */
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .rating-container input[type="range"] {
+            flex: 1;
+        }
+
+        .rating-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .rating-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* ===== 7. 按鈕樣式 ===== */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* ===== 8. 歷史記錄表格 ===== */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .history-table th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .history-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            font-size: 14px;
+        }
+
+        /* ===== 9. 響應式設計 ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .history-table {
+                font-size: 12px;
+            }
+
+            .history-table th,
+            .history-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 頂部導航列 -->
+    <div class="navbar">
+        <div class="navbar-left">
+            <h2>🎯 績效管理系統</h2>
+            <p id="welcomeMessage">歡迎回來，載入中...</p>
+        </div>
+        <button class="logout-btn" onclick="logout()">登出</button>
+    </div>
+
+    <!-- 主要內容 -->
+    <div class="container">
+        <!-- 填寫自評表單 -->
+        <div class="card">
+            <h3>📝 填寫績效自評</h3>
+            <form id="performanceForm">
+                <!-- 考核季度 -->
+                <div class="form-group">
+                    <label for="quarter">考核季度 *</label>
+                    <select id="quarter" name="quarter" required>
+                        <option value="">請選擇季度</option>
+                        <option value="2024Q1">2024 第一季 (Q1)</option>
+                        <option value="2024Q2">2024 第二季 (Q2)</option>
+                        <option value="2024Q3">2024 第三季 (Q3)</option>
+                        <option value="2024Q4">2024 第四季 (Q4)</option>
+                    </select>
+                </div>
+
+                <!-- 工作成果 -->
+                <div class="form-group">
+                    <label for="achievement">本季工作成果 *</label>
+                    <textarea 
+                        id="achievement" 
+                        name="achievement" 
+                        placeholder="請描述本季度的主要工作成果、完成的專案或任務..."
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- 自我評分 -->
+                <div class="form-group">
+                    <label for="selfScore">自我評分 *</label>
+                    <div class="rating-container">
+                        <input 
+                            type="range" 
+                            id="selfScore" 
+                            name="selfScore" 
+                            min="1" 
+                            max="5" 
+                            value="3"
+                            oninput="updateRatingDisplay()"
+                        >
+                        <span class="rating-value" id="ratingValue">3</span>
+                    </div>
+                    <div class="rating-labels">
+                        <span>1 - 需大幅改進</span>
+                        <span>2 - 待改進</span>
+                        <span>3 - 符合期望</span>
+                        <span>4 - 超出期望</span>
+                        <span>5 - 卓越表現</span>
+                    </div>
+                </div>
+
+                <!-- 需要改進的地方 -->
+                <div class="form-group">
+                    <label for="improvement">需要改進的地方</label>
+                    <textarea 
+                        id="improvement" 
+                        name="improvement" 
+                        placeholder="請描述你認為需要改進或加強的地方（選填）"
+                    ></textarea>
+                </div>
+
+                <!-- 提交按鈕 -->
+                <button type="submit" class="submit-btn">提交自評表</button>
+            </form>
+        </div>
+
+        <!-- 歷史績效記錄 -->
+        <div class="card">
+            <h3>📊 歷史績效記錄</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>季度</th>
+                        <th>自評分數</th>
+                        <th>主管評分</th>
+                        <th>狀態</th>
+                        <th>提交時間</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <!-- 這裡會用 JavaScript 動態填入資料 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ===== JavaScript 部分 =====
+
+        // 1. 頁面載入時執行
+        window.onload = function() {
+            checkLogin();
+            loadHistoryData();
+        };
+
+        // 2. 檢查是否已登入
+        function checkLogin() {
+            const currentUser = localStorage.getItem('currentUser');
+            
+            // 如果沒有登入資料，導回登入頁
+            if (!currentUser) {
+                alert('請先登入！');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 解析使用者資料
+            const user = JSON.parse(currentUser);
+            
+            // 顯示歡迎訊息
+            document.getElementById('welcomeMessage').textContent = 
+                `歡迎回來，${user.name}（${user.username}）`;
+        }
+
+        // 3. 更新評分顯示
+        function updateRatingDisplay() {
+            const score = document.getElementById('selfScore').value;
+            document.getElementById('ratingValue').textContent = score;
+        }
+
+        // 4. 處理表單提交
+        document.getElementById('performanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 取得表單資料
+            const formData = {
+                quarter: document.getElementById('quarter').value,
+                achievement: document.getElementById('achievement').value,
+                selfScore: document.getElementById('selfScore').value,
+                improvement: document.getElementById('improvement').value,
+                submitDate: new Date().toLocaleDateString('zh-TW'),
+                status: 'pending'  // 待主管評分
+            };
+
+            // 取得目前使用者
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            // 儲存績效資料到 localStorage（之後會改成存到後端）
+            let performances = JSON.parse(localStorage.getItem('performances') || '[]');
+            
+            // 加入使用者資訊
+            formData.username = currentUser.username;
+            formData.name = currentUser.name;
+            
+            performances.push(formData);
+            localStorage.setItem('performances', JSON.stringify(performances));
+
+            // 顯示成功訊息
+            alert('✅ 自評表提交成功！');
+
+            // 清空表單
+            document.getElementById('performanceForm').reset();
+            document.getElementById('ratingValue').textContent = '3';
+
+            // 重新載入歷史記錄
+            loadHistoryData();
+        });
+
+        // 5. 載入歷史績效資料
+        function loadHistoryData() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const performances = JSON.parse(localStorage.getItem('performances') || '[]');
+            
+            // 篩選出目前使用者的績效記錄
+            const myPerformances = performances.filter(p => p.username === currentUser.username);
+
+            const tbody = document.getElementById('historyTableBody');
+
+            // 如果沒有資料
+            if (myPerformances.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-message">尚無績效記錄，請填寫第一筆自評表！</td></tr>';
+                return;
+            }
+
+            // 顯示資料（最新的在最上面）
+            tbody.innerHTML = myPerformances.reverse().map(p => `
+                <tr>
+                    <td>${p.quarter}</td>
+                    <td>${p.selfScore} 分</td>
+                    <td>${p.managerScore || '待評分'}</td>
+                    <td>
+                        <span class="status-badge ${p.status === 'completed' ? 'status-completed' : 'status-pending'}">
+                            ${p.status === 'completed' ? '已完成' : '待主管評分'}
+                        </span>
+                    </td>
+                    <td>${p.submitDate}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 6. 登出功能
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
