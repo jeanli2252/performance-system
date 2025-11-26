@@ -232,10 +232,14 @@
             
             // 4. 定義假的使用者資料（之後會從後端 API 取得）
             const users = {
-                'wang': { password: '123456', role: 'employee', name: '王小明' },
-                'zhang': { password: '123456', role: 'manager', name: '張經理' },
-                'chen': { password: '123456', role: 'hr', name: '陳HR' }
-            };
+       'wang': { password: '123456', role: 'employee', name: '王小明' },
+       'lin': { password: '123456', role: 'employee', name: '林美玲' },
+       'zhang': { password: '123456', role: 'manager', name: '張經理' },
+       'liu': { password: '123456', role: 'manager', name: '劉經理' },
+       'chen': { password: '123456', role: 'hr', name: '陳HR' }
+   };
+
+
             
             // 5. 檢查帳號是否存在
             if (!users[username]) {
